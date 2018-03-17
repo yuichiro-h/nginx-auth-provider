@@ -48,6 +48,7 @@ func main() {
 	oauth2CallbackHandler := handler.NewOauth2Callback(oauthConfig, logger).Handle
 	callbackHandler := handler.NewCallback(logger).Handle
 
+	r.GET("/", func(c *gin.Context) { c.Status(200) })
 	r.GET("/auth", authHandler)
 	r.GET("/initiate", initiateHandler)
 	r.GET("/oauth2callback", oauth2CallbackHandler)
