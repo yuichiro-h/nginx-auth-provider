@@ -36,6 +36,18 @@ func (h *Callback) Handle(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set(sessionKeyUser, *stateData.Email)
+
+	secure := c.GetHeader("X-Forwarded-Proto") == "https"
+	cookiePath := c.GetHeader(headerNameCallbackCookiePath)
+	if cookiePath == "" {
+		cookiePath = "/"
+	}
+
+	session.Options(sessions.Options{
+		Path:   cookiePath,
+		Secure: secure,
+	})
+
 	if err := session.Save(); err != nil {
 		h.log.Warn(err.Error())
 		c.Status(403)
