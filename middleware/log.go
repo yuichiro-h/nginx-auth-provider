@@ -6,15 +6,28 @@ import (
 )
 
 type Log struct {
-	logger *zap.Logger
+	config LogConfig
 }
 
-func NewLog(logger *zap.Logger) *Log {
+type LogConfig struct {
+	Logger      *zap.Logger
+	IgnorePaths []string
+}
+
+func NewLog(config LogConfig) *Log {
 	return &Log{
-		logger: logger,
+		config: config,
 	}
 }
 
 func (m *Log) Handle(c *gin.Context) {
-	m.logger.Info("", zap.Any("Header", c.Request.Header))
+	for _, p := range m.config.IgnorePaths {
+		if c.Request.URL.Path == p {
+			return
+		}
+	}
+
+	m.config.Logger.Info("request",
+		zap.String("path", c.Request.URL.Path),
+		zap.Any("Header", c.Request.Header))
 }

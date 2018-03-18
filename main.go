@@ -36,7 +36,11 @@ func main() {
 	cookieStore := sessions.NewCookieStore([]byte(config.Get().CookieSecret))
 	r.Use(sessions.Sessions("session", cookieStore))
 
-	r.Use(middleware.NewLog(logger).Handle)
+	logMiddleware := middleware.NewLog(middleware.LogConfig{
+		IgnorePaths: []string{"/"},
+		Logger:      logger,
+	})
+	r.Use(logMiddleware.Handle)
 
 	oauthConfig := &oauth2.Config{
 		ClientID:     config.Get().GoogleClientID,
