@@ -11,6 +11,7 @@ type Config struct {
 	Debug bool `envconfig:"debug"`
 
 	CookieSecret string `envconfig:"cookie_secret"`
+	CookieMaxAge int    `envconfig:"cookie_max_age"`
 
 	GoogleDomain       string `envconfig:"google_domain"`
 	GoogleClientID     string `envconfig:"google_client_id"`

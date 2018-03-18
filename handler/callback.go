@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 
+	"github.com/yuichiro-h/nginx-auth-provider/config"
+
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -42,10 +44,15 @@ func (h *Callback) Handle(c *gin.Context) {
 	if cookiePath == "" {
 		cookiePath = "/"
 	}
+	maxAge := config.Get().CookieMaxAge
+	if maxAge == 0 {
+		maxAge = 60 * 60 * 24 * 7 // 1 week
+	}
 
 	session.Options(sessions.Options{
 		Path:   cookiePath,
 		Secure: secure,
+		MaxAge: maxAge,
 	})
 
 	if err := session.Save(); err != nil {
