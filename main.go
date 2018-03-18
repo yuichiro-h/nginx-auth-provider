@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yuichiro-h/nginx-auth-provider/config"
 	"github.com/yuichiro-h/nginx-auth-provider/handler"
+	"github.com/yuichiro-h/nginx-auth-provider/middleware"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -35,6 +36,8 @@ func main() {
 	cookieStore := sessions.NewCookieStore([]byte(config.Get().CookieSecret))
 	r.Use(sessions.Sessions("session", cookieStore))
 
+	r.Use(middleware.NewLog(logger).Handle)
+
 	oauthConfig := &oauth2.Config{
 		ClientID:     config.Get().GoogleClientID,
 		ClientSecret: config.Get().GoogleClientSecret,
@@ -43,7 +46,7 @@ func main() {
 		Endpoint:     google.Endpoint,
 	}
 
-	authHandler := handler.NewAuth().Handle
+	authHandler := handler.NewAuth(logger).Handle
 	initiateHandler := handler.NewInitiate(oauthConfig, logger).Handle
 	oauth2CallbackHandler := handler.NewOauth2Callback(oauthConfig, logger).Handle
 	callbackHandler := handler.NewCallback(logger).Handle
