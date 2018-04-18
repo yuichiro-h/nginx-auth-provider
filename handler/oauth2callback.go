@@ -69,14 +69,6 @@ func (h *Oauth2Callback) Handle(c *gin.Context) {
 		return
 	}
 
-	domain := strings.Split(email, "@")[1]
-	if config.Get().GoogleDomain != domain {
-		h.log.Warn("unexpected email domain",
-			zap.String("expect", config.Get().GoogleDomain), zap.String("actual", domain))
-		c.String(403, "Invalid domain.")
-		return
-	}
-
 	state := c.Query("state")
 	stateDataJSON, found := stateCache.Get(state)
 	if !found {
@@ -90,6 +82,26 @@ func (h *Oauth2Callback) Handle(c *gin.Context) {
 		c.Status(403)
 		return
 	}
+
+	accept := false
+	domain := strings.Split(email, "@")[1]
+	if len(stateData.AcceptDomains) > 0 {
+		for _, acceptDomain := range stateData.AcceptDomains {
+			if acceptDomain == domain {
+				accept = true
+				break
+			}
+		}
+	} else if config.Get().GoogleDomain == domain {
+		accept = true
+	}
+
+	if !accept {
+		h.log.Warn("unexpected email domain", zap.String("request_domain", domain))
+		c.String(403, "Invalid domain.")
+		return
+	}
+
 	stateData.Email = &email
 	newStateDataJSON, err := json.Marshal(&stateData)
 	if err != nil {

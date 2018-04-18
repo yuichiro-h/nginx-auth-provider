@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
@@ -10,9 +11,10 @@ import (
 )
 
 type StateData struct {
-	BackTo   string
-	Callback string
-	Email    *string
+	BackTo        string
+	Callback      string
+	AcceptDomains []string
+	Email         *string
 }
 
 type Initiate struct {
@@ -42,6 +44,12 @@ func (h *Initiate) Handle(c *gin.Context) {
 		BackTo:   backTo,
 		Callback: callback,
 	}
+
+	domains := c.Request.Header.Get(headerNameInitiateAcceptDomains)
+	if domains != "" {
+		stateData.AcceptDomains = strings.Split(domains, ",")
+	}
+
 	stateDataJSON, err := json.Marshal(&stateData)
 	if err != nil {
 		h.log.Warn(err.Error())

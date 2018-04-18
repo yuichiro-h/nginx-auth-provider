@@ -9,6 +9,9 @@ const (
 	// 認証後に認証対象のアプリのCookieに認証情報を書き込むために、一時的にリダイレクトするURL
 	headerNameInitiateCallback = "X-Nginx-Auth-Provider-Initiate-Callback"
 
+	// 認証するGoogleドメイン
+	headerNameInitiateAcceptDomains = "X-Nginx-Auth-Provider-Initiate-Accept-Domains"
+
 	// 認証対象のアプリのCookieが有効になるパス
 	headerNameCallbackCookiePath = "X-Nginx-Auth-Provider-Callback-Cookie-Path"
 )
